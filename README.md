@@ -1,8 +1,18 @@
 # Wagtail MCP Server
 
-This project implements a Model Context Protocol (MCP) server that provides read-only access to a Wagtail CMS instance using its V2 API.
-It is built on [`FastMCP`](https://github.com/punkpeye/fastmcp).
+MCP server for Wagtail CMS: **read** via Wagtail API v2 and **write** via [wagtail-write-api](https://tomdyson.github.io/wagtail-write-api/).
 
+Built on [`FastMCP`](https://github.com/punkpeye/fastmcp).
+
+See [IMPLEMENTATION.md](./IMPLEMENTATION.md) for architecture and setup plan.
+
+## Prerequisites
+
+- Node.js >= 21.7
+- Wagtail instance with:
+  - API v2 enabled (`/api/v2/`)
+  - [wagtail-write-api](https://pypi.org/project/wagtail-write-api/) installed (`/api/write/v1/`)
+  - API token: `python manage.py create_api_token <username>`
 
 ## Configuration
 
@@ -18,7 +28,9 @@ Add the following JSON to the MCP configuration file for your environment (e.g. 
         "wagtail-mcp"
       ],
       "env": {
-        "WAGTAIL_BASE_URL": "https://api.example.com"
+        "WAGTAIL_BASE_URL": "https://api.example.com",
+        "WAGTAIL_WRITE_API_PATH": "/api/write/v1",
+        "WAGTAIL_API_KEY": "your-token-here"
       }
     }
   }
@@ -29,6 +41,8 @@ Make sure to set `WAGTAIL_BASE_URL` to the base URL of your Wagtail API instance
 
 
 ## Implemented Tools
+
+### Read (Wagtail API v2)
 
 *   **`search_pages`**: Searches pages from the Wagtail CMS API.
     *   Parameters:
@@ -64,12 +78,25 @@ Make sure to set `WAGTAIL_BASE_URL` to the base URL of your Wagtail API instance
         *   `id` (integer, **required**): The unique numeric ID of the document.
     *   Usage: After finding a document's ID (e.g., via `search_documents`), use this to get its specific details, primarily its ID, title and download URL.
 
+### Write (wagtail-write-api)
+
+Requires `WAGTAIL_API_KEY` (Bearer token).
+
+*   **`get_content_schema`**: Returns page types, fields, StreamField blocks, and InlinePanel children. Call before create/update.
+*   **`list_write_pages`**: Lists pages (filter by type, parent, search). Use to find FeedPage parent IDs.
+*   **`get_write_page`**: Full page detail including draft content and sections.
+*   **`create_page`**: Creates a page (draft by default). Params: `type`, `parent`, `title`, optional `slug`, `fields`, `action`.
+*   **`update_page`**: PATCH page fields. Params: `id`, `fields`, optional `action=publish`.
+*   **`publish_page`**: Publishes the latest draft revision.
+*   **`upload_image`**: Uploads image from local `file_path`. Returns image ID for use in page fields.
+
 
 ## Configuration Details
 
 Environment variables can be passed in via the MCP configuration file for your environment (e.g. `claude_desktop_config.json`):
 
 *   **Wagtail API Configuration:**
-    *   `WAGTAIL_BASE_URL`: **Required**. The base URL of your Wagtail API instance (e.g., `https://api.example.com`).
-    *   `WAGTAIL_API_PATH`: (Optional) Path to the API endpoint. Defaults to `/api/v2`.
-    *   `WAGTAIL_API_KEY`: (Optional) An API key if your Wagtail API requires bearer token authentication.
+    *   `WAGTAIL_BASE_URL`: **Required**. The base URL of your Wagtail instance (e.g., `http://127.0.0.1:8000`).
+    *   `WAGTAIL_API_PATH`: (Optional) Read API path. Defaults to `/api/v2`.
+    *   `WAGTAIL_WRITE_API_PATH`: (Optional) Write API path. Defaults to `/api/write/v1`.
+    *   `WAGTAIL_API_KEY`: **Required for write tools**. Bearer token from `python manage.py create_api_token`.
