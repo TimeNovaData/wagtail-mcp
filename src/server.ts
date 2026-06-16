@@ -18,6 +18,7 @@ if (fs.existsSync(envPath)) {
 import { FastMCP } from "fastmcp";
 
 // Import the registration functions from each tool module
+import { registerWriteActions } from "./actions/index";
 import { registerTool as registerGetPageDetails } from "./tools/get-page-details.tool";
 import { registerTool as registerSearchPages } from "./tools/search-pages.tool";
 import { registerTool as registerGetDocumentDetails } from "./tools/get-document-details.tool";
@@ -26,7 +27,7 @@ import { registerTool as registerSearchDocuments } from "./tools/search-document
 async function main() {
 	// Initialize Configuration
 	const serviceName = "Wagtail MCP Server";
-	const serviceVersion = "0.0.1";
+	const serviceVersion = "0.1.0";
 	const transportType = (process.env.MCP_TRANSPORT || "STDIO").toUpperCase();
 
 	console.error(`Starting ${serviceName} v${serviceVersion}...`);
@@ -40,11 +41,13 @@ async function main() {
 	});
 
 	// --- Tool Registration using imported functions ---
-	console.error("Registering Wagtail tools...");
+	console.error("Registering Wagtail read tools...");
 	registerGetPageDetails(server);
 	registerSearchPages(server);
 	registerGetDocumentDetails(server);
 	registerSearchDocuments(server);
+	console.error("Registering Wagtail write tools...");
+	registerWriteActions(server);
 	console.error("Tools registered successfully.");
 
 	// --- Transport Initialization and Connection ---
