@@ -63,7 +63,7 @@ async function main() {
 			console.error(`Connecting using SSE transport on port ${port}...`);
 			await server.start({
 				transportType: "httpStream",
-				httpStream: { port },
+				httpStream: { endpoint: "/mcp", port },
 			});
 			console.error(`SSE transport started on port ${port}.`);
 		} else {
