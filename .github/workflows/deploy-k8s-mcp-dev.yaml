@@ -3,7 +3,7 @@ name: Deploy K8s Wagtail MCP Dev
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   build-and-deploy:
