@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wagtail-mcp-configmap
+  namespace: logbitb2b-wagtail-dev
+data:
+  WAGTAIL_BASE_URL: "http://logbitb2b-wagtail-service:8000"
+  WAGTAIL_API_PATH: "/api/v2"
+  WAGTAIL_WRITE_API_PATH: "/api/write/v1"
+  MCP_TRANSPORT: "SSE"
+  PORT: "3000"

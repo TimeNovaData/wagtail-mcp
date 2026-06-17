@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wagtail-mcp-service
+  namespace: logbitb2b-wagtail-dev
+spec:
+  selector:
+    app: wagtail-mcp
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

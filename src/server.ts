@@ -54,11 +54,18 @@ async function main() {
 	try {
 		if (transportType === "STDIO") {
 			console.error("Connecting using STDIO transport...");
-			// Use the start method with options object
 			await server.start({
 				transportType: "stdio",
 			});
 			console.error("STDIO transport connected and server started.");
+		} else if (transportType === "SSE") {
+			const port = parseInt(process.env.PORT || "3000");
+			console.error(`Connecting using SSE transport on port ${port}...`);
+			await server.start({
+				transportType: "httpStream",
+				httpStream: { port },
+			});
+			console.error(`SSE transport started on port ${port}.`);
 		} else {
 			console.error(`Unsupported transport type: ${transportType}`);
 			process.exit(1);

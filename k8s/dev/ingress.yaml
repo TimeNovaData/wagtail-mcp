@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wagtail-mcp-ingress
+  namespace: logbitb2b-wagtail-dev
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - wagtail-mcp.k8s.novadata.dev
+      secretName: wagtail-mcp-tls
+  rules:
+    - host: wagtail-mcp.k8s.novadata.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: wagtail-mcp-service
+                port:
+                  number: 3000
